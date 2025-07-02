@@ -1,7 +1,7 @@
 import json
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from .api import GitHubAPI
 
@@ -13,6 +13,7 @@ class ReviewComment:
     diff_hunk: str
     body: str
     full_diff: str
+    in_reply_to_id: Optional[int]
 
 class PullRequestParser:
     def __init__(self, api: GitHubAPI):
@@ -38,6 +39,7 @@ class PullRequestParser:
                     diff_hunk=c.get("diff_hunk", ""),
                     body=c.get("body", ""),
                     full_diff=diff_cache[commit_sha],
+                    in_reply_to_id=c.get("in_reply_to_id"),
                 )
             )
         return results

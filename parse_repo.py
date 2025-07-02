@@ -6,16 +6,18 @@ from github_parser.parser import PullRequestParser
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Parse GitHub PR review comments")
-    parser.add_argument("owner", help="Repository owner")
-    parser.add_argument("repo", help="Repository name")
-    parser.add_argument("pull", type=int, help="Pull request number")
-    args = parser.parse_args()
-
     api = GitHubAPI()
     pr_parser = PullRequestParser(api)
-    comments = pr_parser.parse_review_comments(args.owner, args.repo, args.pull)
-    print(PullRequestParser.to_json(comments))
+    comments = pr_parser.parse_review_comments('embeddings-benchmark', 'mteb', 2838)
+    
+    # Filter out reply comments - only keep original comments
+    original_comments = [c for c in comments if c.in_reply_to_id is None]
+    
+    print(f"Total comments: {len(comments)}")
+    print(f"Original comments (non-replies): {len(original_comments)}")
+    print(f"Reply comments filtered out: {len(comments) - len(original_comments)}")
+    print("\nOriginal comments only:")
+    print(PullRequestParser.to_json(original_comments))
 
 
 if __name__ == "__main__":

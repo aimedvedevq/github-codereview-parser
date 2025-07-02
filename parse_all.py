@@ -2,7 +2,8 @@
 import argparse
 import json
 import csv
-
+from tqdm import tqdm
+from time import sleep
 from github_parser import GitHubAPI, PullRequestParser
 
 
@@ -38,6 +39,7 @@ def main():
                 "diff_hunk",
                 "body",
                 "full_diff",
+                "in_reply_to_id",
             ]
         )
         for repo in repos:
@@ -46,10 +48,13 @@ def main():
             if not owner or not name:
                 continue
             pulls = api.list_pull_requests(owner, name)
-            for pr in pulls:
+            sleep(1)
+            for pr in tqdm(pulls, desc=f"Processing {owner}/{name}"):
                 number = pr["number"]
                 comments = parser.parse_review_comments(owner, name, number)
-                for c in comments:
+                # Filter out reply comments - only keep original comments
+                original_comments = [c for c in comments if c.in_reply_to_id is None]
+                for c in tqdm(original_comments, desc=f"Processing {owner}/{name} #{number}"):
                     writer.writerow(
                         [
                             f"{owner}/{name}",
@@ -60,6 +65,7 @@ def main():
                             c.diff_hunk,
                             c.body,
                             c.full_diff,
+                            c.in_reply_to_id,
                         ]
                     )
 
