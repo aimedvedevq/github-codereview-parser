@@ -30,3 +30,11 @@ Run the parser for a repository and pull request number:
 ```
 
 The script outputs the collected review comments in JSON format.
+
+To process all repositories listed in `repos_stats_all.json` and write the
+results into `output.csv`, run:
+
+```bash
+./parse_all.py --input repos_stats_all.json --output output.csv
+```
+

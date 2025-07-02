@@ -30,6 +30,25 @@ class GitHubAPI:
         resp = self._request("GET", f"/repos/{owner}/{repo}/pulls/{pull_number}")
         return resp.json()
 
+    def list_pull_requests(
+        self, owner: str, repo: str, state: str = "all", per_page: int = 100
+    ) -> List[Dict]:
+        pulls: List[Dict] = []
+        page = 1
+        while True:
+            resp = self._request(
+                "GET",
+                f"/repos/{owner}/{repo}/pulls",
+                params={"state": state, "per_page": per_page, "page": page},
+            )
+            chunk = resp.json()
+            if not chunk:
+                break
+            pulls.extend(chunk)
+            page += 1
+        return pulls
+
+
     def list_review_comments(self, owner: str, repo: str, pull_number: int, per_page: int = 100) -> List[Dict]:
         comments = []
         page = 1
