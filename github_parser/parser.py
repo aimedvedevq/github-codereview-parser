@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Set
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+
 from .api import GitHubAPI
 
 @dataclass
@@ -28,6 +29,7 @@ class PullRequestParser:
         self.api = api
         self.workers = workers
 
+
     def parse_review_comments(self, owner: str, repo: str, pull_number: int) -> List[ReviewComment]:
         pr_info = self.api.get_pull(owner, repo, pull_number)
         base_sha = pr_info["base"]["sha"]
@@ -50,6 +52,7 @@ class PullRequestParser:
 
         for c in comments:
             commit_sha = c["commit_id"]
+
             results.append(
                 ReviewComment(
                     id=c["id"],
@@ -58,6 +61,7 @@ class PullRequestParser:
                     diff_hunk=c.get("diff_hunk", ""),
                     body=c.get("body", ""),
                     full_diff=diff_cache.get(commit_sha, ""),
+
                 )
             )
         return results

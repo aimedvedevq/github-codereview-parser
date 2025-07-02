@@ -24,5 +24,6 @@ def main():
     print(PullRequestParser.to_json(comments))
 
 
+
 if __name__ == "__main__":
     main()

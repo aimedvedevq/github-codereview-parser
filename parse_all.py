@@ -6,6 +6,7 @@ from typing import List, Dict
 
 from tqdm import tqdm
 
+
 from github_parser import GitHubAPI, PullRequestParser
 
 
@@ -27,6 +28,7 @@ def main():
         default=4,
         help="Number of threads for fetching commit diffs",
     )
+
     args = argp.parse_args()
 
     with open(args.input, "r", encoding="utf-8") as f:
@@ -34,6 +36,7 @@ def main():
 
     api = GitHubAPI()
     parser = PullRequestParser(api, workers=args.workers)
+
 
     with open(args.output, "w", newline="", encoding="utf-8") as out:
         writer = csv.writer(out)
@@ -50,6 +53,7 @@ def main():
             ]
         )
         for repo in tqdm(repos, desc="Repositories"):
+
             owner = repo.get("owner")
             name = repo.get("name")
             if not owner or not name:
@@ -64,6 +68,7 @@ def main():
                 if not comments:
                     continue
                 for c in comments:
+
                     writer.writerow(
                         [
                             f"{owner}/{name}",
@@ -74,6 +79,7 @@ def main():
                             c.diff_hunk,
                             c.body,
                             c.full_diff,
+
                         ]
                     )
 

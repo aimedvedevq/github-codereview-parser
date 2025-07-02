@@ -18,6 +18,7 @@ pip install -r requirements.txt
 
 Create a file `requirements.txt` containing the packages above.
 
+
 ## Usage
 
 Set the `GITHUB_API_KEY` environment variable with a GitHub personal access
@@ -28,6 +29,7 @@ Run the parser for a repository and pull request number:
 
 ```bash
 ./parse_repo.py <owner> <repo> <pull_number> [--workers N]
+
 ```
 
 The script outputs the collected review comments in JSON format.
@@ -42,3 +44,4 @@ The bulk parser shows progress with `tqdm` and skips pull requests that have no
 review comments to reduce API calls. Diff retrieval is parallelized with a
 thread pool (`--workers` option) to improve performance without exceeding rate
 limits.
+
