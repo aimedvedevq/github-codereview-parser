@@ -48,6 +48,7 @@ class GitHubAPI:
             page += 1
         return pulls
 
+
     def list_review_comments(self, owner: str, repo: str, pull_number: int, per_page: int = 100) -> List[Dict]:
         comments = []
         page = 1
