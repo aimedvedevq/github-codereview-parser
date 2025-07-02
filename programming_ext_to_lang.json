@@ -1,0 +1,15 @@
+{
+    ".py": "Python",
+    ".pyc": "Python",
+    ".pyo": "Python",
+    ".java": "Java",
+    ".class": "Java",
+    ".jar": "Java",
+    ".jad": "Java",
+    ".jmod": "Java",
+    ".war": "Java",
+    ".ear": "Java",
+    ".go": "Golang",
+    ".scala": "Scala",
+    ".sc": "Scala"
+}
