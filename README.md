@@ -7,7 +7,8 @@ base commit and the commit to which the comment was attached.
 ## Requirements
 
 - Python 3.8+
-- `requests` library
+- `requests`
+- `tqdm`
 
 Install dependencies with:
 
@@ -15,7 +16,8 @@ Install dependencies with:
 pip install -r requirements.txt
 ```
 
-Create a file `requirements.txt` containing `requests`.
+Create a file `requirements.txt` containing the packages above.
+
 
 ## Usage
 
@@ -26,7 +28,8 @@ hour).
 Run the parser for a repository and pull request number:
 
 ```bash
-./parse_repo.py <owner> <repo> <pull_number>
+./parse_repo.py <owner> <repo> <pull_number> [--workers N]
+
 ```
 
 The script outputs the collected review comments in JSON format.
@@ -35,6 +38,10 @@ To process all repositories listed in `repos_stats_all.json` and write the
 results into `output.csv`, run:
 
 ```bash
-./parse_all.py --input repos_stats_all.json --output output.csv
+./parse_all.py --input repos_stats_all.json --output output.csv [--workers N]
 ```
+The bulk parser shows progress with `tqdm` and skips pull requests that have no
+review comments to reduce API calls. Diff retrieval is parallelized with a
+thread pool (`--workers` option) to improve performance without exceeding rate
+limits.
 

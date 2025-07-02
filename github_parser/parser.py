@@ -1,7 +1,8 @@
 import json
-from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Set
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 
 from .api import GitHubAPI
 
@@ -13,11 +14,21 @@ class ReviewComment:
     diff_hunk: str
     body: str
     full_diff: str
-    in_reply_to_id: Optional[int]
 
 class PullRequestParser:
-    def __init__(self, api: GitHubAPI):
+    def __init__(self, api: GitHubAPI, workers: int = 4):
+        """Create parser using the given GitHubAPI instance.
+
+        Parameters
+        ----------
+        api: GitHubAPI
+            API wrapper used for requests.
+        workers: int
+            Number of threads for fetching commit diffs concurrently.
+        """
         self.api = api
+        self.workers = workers
+
 
     def parse_review_comments(self, owner: str, repo: str, pull_number: int) -> List[ReviewComment]:
         pr_info = self.api.get_pull(owner, repo, pull_number)
@@ -27,10 +38,21 @@ class PullRequestParser:
         diff_cache: Dict[str, str] = {}
         results: List[ReviewComment] = []
 
+        unique_commits: Set[str] = {c["commit_id"] for c in comments}
+        if unique_commits:
+            with ThreadPoolExecutor(max_workers=self.workers) as exe:
+                futures = {
+                    exe.submit(
+                        self.api.get_compare_diff, owner, repo, base_sha, sha
+                    ): sha
+                    for sha in unique_commits
+                }
+                for fut in as_completed(futures):
+                    diff_cache[futures[fut]] = fut.result()
+
         for c in comments:
             commit_sha = c["commit_id"]
-            if commit_sha not in diff_cache:
-                diff_cache[commit_sha] = self.api.get_compare_diff(owner, repo, base_sha, commit_sha)
+
             results.append(
                 ReviewComment(
                     id=c["id"],
@@ -38,8 +60,8 @@ class PullRequestParser:
                     path=c["path"],
                     diff_hunk=c.get("diff_hunk", ""),
                     body=c.get("body", ""),
-                    full_diff=diff_cache[commit_sha],
-                    in_reply_to_id=c.get("in_reply_to_id"),
+                    full_diff=diff_cache.get(commit_sha, ""),
+
                 )
             )
         return results
